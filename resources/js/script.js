@@ -1,3 +1,5 @@
+// Store all 3 letter words
+
 // Define the crossword puzzle grid
 const grid = [
     ['A', 'B', 'C'],
