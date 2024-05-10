@@ -1,23 +1,17 @@
-// Store all 3 letter words
+// Import the data from the JSON file
 
-// Define the crossword puzzle grid
-const grid = [
-    ['A', 'B', 'C'],
-    ['D', 'E', 'F'],
-    ['G', 'H', 'I']
-];
+fetch('data\\hard_list.json')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    // Manipulate data here
+    console.log(data);
+  })
+  .catch(error => {
+    console.error('There was a problem with the fetch operation:', error);
+  });
 
-// Define the words to be placed in the crossword
-const words = ['DOG', 'CAT', 'BIRD', 'FISH'];
-
-// Function to generate the crossword puzzle
-function generateCrossword(grid, words) {
-    // Your code to generate the crossword puzzle goes here
-    // ...
-}
-
-// Call the function to generate the crossword puzzle
-const crossword = generateCrossword(grid, words);
-
-// Print the crossword puzzle
-console.log(crossword);
