@@ -9,6 +9,59 @@ function findRandomWord(data) {
   return randomKey;
 }
 
+function findWordsThatMatchOneLetter(data, letter) {
+  // Return an array of words that contain the letter
+  const keys = Object.keys(data);
+  const matches = [];
+  let done = false;
+  let index = Math.floor(keys.length / 2);
+  let currentWord = keys[index];
+  while(!done) {
+    if(currentWord.charAt(0) > letter) {
+      index = Math.floor(index / 2);
+    } else if(currentWord.charAt(0) < letter) {
+      index = Math.floor((index + keys.length) / 2);
+    }
+    currentWord = keys[index];
+    if(index === 0 || index === keys.length - 1) {
+      throw new Error('No matches found for letter');
+    }
+    if(currentWord.charAt(0) === letter) {
+      done = true;
+    }
+  }
+
+  done = false;
+  let i = index;
+  while(!done) {
+    matches.push(currentWord);
+    i--;
+    if(i < 0 || keys[i].charAt(0) !== letter) {
+      done = true;
+    } else {
+      currentWord = keys[i];
+    }
+  }
+
+  done = false;
+  i = index + 1;
+  if(i >= keys.length) {
+    done = true;
+  }
+  currentWord = keys[i];
+  while(!done) {
+    matches.push(currentWord);
+    i++;
+    if(i >= keys.length || keys[i].charAt(0) !== letter) {
+      done = true;
+    } else {
+      currentWord = keys[i];
+    }
+  }
+
+  return matches;
+}
+
 function findWordsThatMatch(data, wordlet) {
   // Return an array of words that match the letters of wordlet
   // UGHHHHH i have to make a binary search function since everything is sorted
@@ -19,7 +72,7 @@ function findWordsThatMatch(data, wordlet) {
   let index = Math.floor(keys.length / 2);
   let currentWord = keys[index];
   while(!done) {
-    
+    done = true;
   }
 }
 
@@ -46,7 +99,7 @@ function fetchJSONFile(path) {
     })
     .then(data => {
       // TODO: Do something with the data
-      console.log(findRandomWord(data));
+      console.log(findWordsThatMatchOneLetter(data, 'z'));
     })
     .catch(error => {
       console.error('There was a problem with the fetch operation:', error);
