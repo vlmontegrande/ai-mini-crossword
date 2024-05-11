@@ -35,7 +35,8 @@ function findWordsThatMatchOneLetter(data, letter) {
     if((index === 0 || index === keys.length - 1) && !done) {
       throw new Error('No matches found for letter');
     }
-    if(count > 20) {
+    if(count > 100) {
+      console.log(currentWord + ' ' + letter + ' ' + index + ' ' + keys.length + ' ' );
       throw new Error('Infinite loop');
     }
   }
@@ -120,38 +121,42 @@ function fillCrossword(data) {
   let crossword = [];
 
   while(!done) {
+    let newData = {...data};
     counter++;
     console.log(counter);
-    if(counter > 100) {
-      throw new Error('Infinite loop');
-    }
-    crossword = [];
-    let topRowWord = findRandomWord(data);
-    crossword.push(topRowWord);
 
-    let leftColumnWords = findWordsThatMatchOneLetter(data, topRowWord.charAt(0));
+    crossword = [];
+    let topRowWord = findRandomWord(newData);
+    crossword.push(topRowWord);
+    delete newData[topRowWord];
+
+    let leftColumnWords = findWordsThatMatchOneLetter(newData, topRowWord.charAt(0));
     let leftColumnWord = leftColumnWords[Math.floor(Math.random() * leftColumnWords.length)];
     crossword.push(leftColumnWord);
+    delete newData[leftColumnWord];
 
-    let middleRowWords = findWordsThatMatchOneLetter(data, leftColumnWord.charAt(1));
+    let middleRowWords = findWordsThatMatchOneLetter(newData, leftColumnWord.charAt(1));
     let middleRowWord = middleRowWords[Math.floor(Math.random() * middleRowWords.length)];
     crossword.push(middleRowWord);
+    delete newData[middleRowWord];
 
-    let middleColumnWords = findWordsThatMatchTwoLetters(data, topRowWord.charAt(1) + middleRowWord.charAt(1));
+    let middleColumnWords = findWordsThatMatchTwoLetters(newData, topRowWord.charAt(1) + middleRowWord.charAt(1));
     if(middleColumnWords.length === 0) {
       continue;
     }
     let middleColumnWord = middleColumnWords[Math.floor(Math.random() * middleColumnWords.length)];
     crossword.push(middleColumnWord);
+    delete newData[middleColumnWord];
 
-    let rightColumnWords = findWordsThatMatchTwoLetters(data, topRowWord.charAt(2) + middleRowWord.charAt(2));
+    let rightColumnWords = findWordsThatMatchTwoLetters(newData, topRowWord.charAt(2) + middleRowWord.charAt(2));
     if(rightColumnWords.length === 0) {
       continue;
     }
     let rightColumnWord = rightColumnWords[Math.floor(Math.random() * rightColumnWords.length)];
     crossword.push(rightColumnWord);
+    delete newData[rightColumnWord];
     
-    if(checkWord(data, crossword[1].charAt(2) + crossword[3].charAt(2) + crossword[4].charAt(2))) {
+    if(checkWord(newData, crossword[1].charAt(2) + crossword[3].charAt(2) + crossword[4].charAt(2))) {
       crossword.push(crossword[1].charAt(2) + crossword[3].charAt(2) + crossword[4].charAt(2));
       done = true;
     }
@@ -171,10 +176,11 @@ function fetchJSONFile(path) {
     .then(data => {
       // TODO: Do something with the data
       console.log(fillCrossword(data));
+      // console.log(findWordsThatMatchOneLetter(data, 'u'));
     })
     .catch(error => {
       console.error('There was a problem with the fetch operation:', error);
     });
 }
 
-fetchJSONFile('data\\hard_list.json');
+fetchJSONFile('data\\easy_list.json');
