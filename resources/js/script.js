@@ -29,7 +29,6 @@ function findWordsThatMatchOneLetter(data, letter) {
     }
     index = Math.floor((lowerBound + upperBound) / 2);
     currentWord = keys[index];
-    console.log(currentWord);
     if(currentWord.charAt(0) === letter){
       done = true;
     }
@@ -83,33 +82,28 @@ function findWordsThatMatchTwoLetters(data, letters) {
   return matches;
 }
 
-function findWordsThatMatchThreeLetters(data, letters) {
+/*function findWordsThatMatchThreeLetters(data, letters) {
   let matchesFirstLetter = findWordsThatMatchOneLetter(data, letters.charAt(0));
   let matches = [];
   for(let i = 0; i < matchesFirstLetter.length; i++) {
     if(matchesFirstLetter[i] === letters) {
       matches.push(matchesFirstLetter[i]);
+      return matches;
     }
   }
   return matches;
-}
+}*/
 
-function findWordsThatMatch(data, wordlet) {
-  // Return an array of words that match the letters of wordlet
-  // UGHHHHH i have to make a binary search function since everything is sorted
-  const keys = Object.keys(data);
-  const letters = wordlet.split('');
-  const matches = [];
-  let done = false;
-  let index = Math.floor(keys.length / 2);
-  let currentWord = keys[index];
-  while(!done) {
-    done = true;
+function findWord(data, letters) {
+  if(data[letters] !== undefined) {
+    return [letters];
   }
+  return [];
 }
 
 function checkWord(data, word) {
   // Return true if word is in the data, return false otherwise
+  return data[word] !== undefined;
 }
 
 function fillCrossword(data) {
@@ -119,6 +113,51 @@ function fillCrossword(data) {
   // Check if any words exist for middle column
   // Check if any words that complete right column and bottom row
   // If not, repeat
+
+  // ORDER: top row, left column, middle row, middle column, right column, bottom row
+  let done = false;
+  let counter = 0;
+  let crossword = [];
+
+  while(!done) {
+    counter++;
+    console.log(counter);
+    if(counter > 100) {
+      throw new Error('Infinite loop');
+    }
+    crossword = [];
+    let topRowWord = findRandomWord(data);
+    crossword.push(topRowWord);
+
+    let leftColumnWords = findWordsThatMatchOneLetter(data, topRowWord.charAt(0));
+    let leftColumnWord = leftColumnWords[Math.floor(Math.random() * leftColumnWords.length)];
+    crossword.push(leftColumnWord);
+
+    let middleRowWords = findWordsThatMatchOneLetter(data, leftColumnWord.charAt(1));
+    let middleRowWord = middleRowWords[Math.floor(Math.random() * middleRowWords.length)];
+    crossword.push(middleRowWord);
+
+    let middleColumnWords = findWordsThatMatchTwoLetters(data, topRowWord.charAt(1) + middleRowWord.charAt(1));
+    if(middleColumnWords.length === 0) {
+      continue;
+    }
+    let middleColumnWord = middleColumnWords[Math.floor(Math.random() * middleColumnWords.length)];
+    crossword.push(middleColumnWord);
+
+    let rightColumnWords = findWordsThatMatchTwoLetters(data, topRowWord.charAt(2) + middleRowWord.charAt(2));
+    if(rightColumnWords.length === 0) {
+      continue;
+    }
+    let rightColumnWord = rightColumnWords[Math.floor(Math.random() * rightColumnWords.length)];
+    crossword.push(rightColumnWord);
+    
+    if(checkWord(data, crossword[1].charAt(2) + crossword[3].charAt(2) + crossword[4].charAt(2))) {
+      crossword.push(crossword[1].charAt(2) + crossword[3].charAt(2) + crossword[4].charAt(2));
+      done = true;
+    }
+  }
+
+  return crossword;
 }
 
 function fetchJSONFile(path) {
@@ -131,7 +170,7 @@ function fetchJSONFile(path) {
     })
     .then(data => {
       // TODO: Do something with the data
-      console.log(findWordsThatMatchOneLetter(data, 'z'));
+      console.log(fillCrossword(data));
     })
     .catch(error => {
       console.error('There was a problem with the fetch operation:', error);
