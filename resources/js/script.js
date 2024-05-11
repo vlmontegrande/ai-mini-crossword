@@ -14,20 +14,30 @@ function findWordsThatMatchOneLetter(data, letter) {
   const keys = Object.keys(data);
   const matches = [];
   let done = false;
-  let index = Math.floor(keys.length / 2);
+  let lowerBound = 0;
+  let upperBound = keys.length - 1;
+  let index = Math.floor((lowerBound + upperBound) / 2);;
   let currentWord = keys[index];
+  let count = 0;
+
   while(!done) {
+    count++;
     if(currentWord.charAt(0) > letter) {
-      index = Math.floor(index / 2);
+      upperBound = index - 1;
     } else if(currentWord.charAt(0) < letter) {
-      index = Math.floor((index + keys.length) / 2);
+      lowerBound = index + 1;
     }
+    index = Math.floor((lowerBound + upperBound) / 2);
     currentWord = keys[index];
-    if(index === 0 || index === keys.length - 1) {
+    console.log(currentWord);
+    if(currentWord.charAt(0) === letter){
+      done = true;
+    }
+    if((index === 0 || index === keys.length - 1) && !done) {
       throw new Error('No matches found for letter');
     }
-    if(currentWord.charAt(0) === letter) {
-      done = true;
+    if(count > 20) {
+      throw new Error('Infinite loop');
     }
   }
 
@@ -59,6 +69,28 @@ function findWordsThatMatchOneLetter(data, letter) {
     }
   }
 
+  return matches;
+}
+
+function findWordsThatMatchTwoLetters(data, letters) {
+  let matchesFirstLetter = findWordsThatMatchOneLetter(data, letters.charAt(0));
+  let matches = [];
+  for(let i = 0; i < matchesFirstLetter.length; i++) {
+    if(matchesFirstLetter[i].charAt(1) === letters.charAt(1)) {
+      matches.push(matchesFirstLetter[i]);
+    }
+  }
+  return matches;
+}
+
+function findWordsThatMatchThreeLetters(data, letters) {
+  let matchesFirstLetter = findWordsThatMatchOneLetter(data, letters.charAt(0));
+  let matches = [];
+  for(let i = 0; i < matchesFirstLetter.length; i++) {
+    if(matchesFirstLetter[i] === letters) {
+      matches.push(matchesFirstLetter[i]);
+    }
+  }
   return matches;
 }
 
