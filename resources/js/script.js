@@ -175,12 +175,93 @@ function fetchJSONFile(path) {
     })
     .then(data => {
       // TODO: Do something with the data
-      console.log(fillCrossword(data));
+      let crossword = fillCrossword(data);
+      document.getElementById('1A').value = crossword[0].charAt(0);
+      document.getElementById('1B').value = crossword[0].charAt(1);
+      document.getElementById('1C').value = crossword[0].charAt(2);
+
+      document.getElementById('2A').value = crossword[2].charAt(0);
+      document.getElementById('2B').value = crossword[2].charAt(1);
+      document.getElementById('2C').value = crossword[2].charAt(2);
+
+      document.getElementById('3A').value = crossword[5].charAt(0);
+      document.getElementById('3B').value = crossword[5].charAt(1);
+      document.getElementById('3C').value = crossword[5].charAt(2);
       // console.log(findWordsThatMatchOneLetter(data, 'u'));
+
+      
     })
     .catch(error => {
       console.error('There was a problem with the fetch operation:', error);
     });
 }
 
-fetchJSONFile('data\\easy_list.json');
+
+function setupCrosswordInput() {
+  const cells = document.querySelectorAll('.crossword-cell');
+  const gridSize = 3; // Assuming a 5x5 grid
+
+  cells.forEach((cell, index) => {
+    cell.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case 'ArrowLeft':
+          if (index % gridSize > 0) {
+            cells[index - 1].focus();
+          }
+          e.preventDefault();
+          break;
+        case 'ArrowRight':
+          if (index % gridSize < gridSize - 1) {
+            cells[index + 1].focus();
+          }
+          e.preventDefault();
+          break;
+        case 'ArrowUp':
+          if (index >= gridSize) {
+            cells[index - gridSize].focus();
+          }
+          e.preventDefault();
+          break;
+        case 'ArrowDown':
+          if (index < cells.length - gridSize) {
+            cells[index + gridSize].focus();
+          }
+          e.preventDefault();
+          break;
+        case 'Backspace':
+          break;
+        case 'Tab':
+          if (index == gridSize ** 2 - 1) {
+            cells[0].focus();
+          } else {
+            cells[index + 1].focus();
+          }
+          e.preventDefault();
+          break;
+        default:
+          // Prevent entering more than one character
+          if (!/^[a-zA-Z]$/.test(e.key)) {
+            e.preventDefault();
+          } else {
+            cell.value = e.key.toUpperCase();
+          }
+          break;
+      }
+    });
+
+    cell.addEventListener('input', (e) => {
+      // Allow only a single character
+      cell.value = cell.value.toUpperCase().substring(0, 1);
+    });
+
+    cell.addEventListener('click', (e) => {
+      // Automatically select the content on focus
+      cell.select();
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', (event) => {
+  fetchJSONFile('data\\easy_list.json');
+  setupCrosswordInput();
+});
