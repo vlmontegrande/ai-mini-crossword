@@ -249,14 +249,16 @@ function setupCrosswordInput() {
       }
     });
 
-    cell.addEventListener('input', (e) => {
+    cell.addEventListener('input', () => {
       // Allow only a single character
       cell.value = cell.value.toUpperCase().substring(0, 1);
     });
 
-    cell.addEventListener('click', (e) => {
-      // Automatically select the content on focus
-      cell.select();
+    cell.addEventListener('mousedown', (e) => {
+      // Move cursor to the end of the input
+      e.preventDefault();
+      cell.focus();
+      cell.selectionStart = cell.selectionEnd = cell.value.length;
     });
   });
 }
