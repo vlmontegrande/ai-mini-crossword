@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "name": "ai-mini-crossword",
+  "version": "1.0.0",
+  "description": "A crossword with AI generated clues",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vlmontegrande/ai-mini-crossword.git"
+  },
+  "author": "Vince",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vlmontegrande/ai-mini-crossword/issues"
+  },
+  "homepage": "https://github.com/vlmontegrande/ai-mini-crossword#readme"
+}
