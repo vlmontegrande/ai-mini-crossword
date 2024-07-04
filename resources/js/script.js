@@ -165,7 +165,7 @@ function fillCrossword(data) {
   return crossword;
 }
 
-function fetchJSONFile(path) {
+/*function fetchJSONFile(path) {
   fetch(path)
     .then(response => {
       if (!response.ok) {
@@ -174,7 +174,6 @@ function fetchJSONFile(path) {
       return response.json();
     })
     .then(data => {
-      // TODO: Do something with the data
       let crossword = fillCrossword(data);
       document.getElementById('1A').value = crossword[0].charAt(0);
       document.getElementById('1B').value = crossword[0].charAt(1);
@@ -187,15 +186,67 @@ function fetchJSONFile(path) {
       document.getElementById('3A').value = crossword[5].charAt(0);
       document.getElementById('3B').value = crossword[5].charAt(1);
       document.getElementById('3C').value = crossword[5].charAt(2);
-      // console.log(findWordsThatMatchOneLetter(data, 'u'));
-
+      console.log(crossword);
+      return crossword;
       
     })
     .catch(error => {
       console.error('There was a problem with the fetch operation:', error);
     });
+}*/
+
+// NEW
+function fetchJSONFile(path) {
+  return fetch(path)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      let crossword = fillCrossword(data);
+      document.getElementById('1A').value = crossword[0].charAt(0);
+      document.getElementById('1B').value = crossword[0].charAt(1);
+      document.getElementById('1C').value = crossword[0].charAt(2);
+
+      document.getElementById('2A').value = crossword[2].charAt(0);
+      document.getElementById('2B').value = crossword[2].charAt(1);
+      document.getElementById('2C').value = crossword[2].charAt(2);
+
+      document.getElementById('3A').value = crossword[5].charAt(0);
+      document.getElementById('3B').value = crossword[5].charAt(1);
+      document.getElementById('3C').value = crossword[5].charAt(2);
+      
+      return crossword; // Make sure to return the crossword
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+      return null; // Return null or some value to indicate failure
+    });
 }
 
+
+async function fetchClues(crossword) {
+  let clues = [];
+  for(let i = 0; i < crossword.length; i++) {
+    let word = crossword[i];
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ word })
+      });
+  
+      clues.push(await response.json());
+    } catch (error) {
+      document.getElementById('result').innerText = 'Error: ' + error.message;
+    }
+  }
+  return clues;
+}
 
 function setupCrosswordInput() {
   const cells = document.querySelectorAll('.crossword-cell');
@@ -264,6 +315,35 @@ function setupCrosswordInput() {
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
-  fetchJSONFile('data\\easy_list.json');
+  fetchJSONFile('data/easy_list.json')
+    .then(crossword => {
+      if (crossword) { // Ensure crossword is not undefined
+        return fetchClues(crossword);
+      } else {
+        throw new Error('Crossword generation failed.');
+      }
+    })
+    .then(clues => {
+      console.log(clues);
+      // Additional logic to display clues can be added here
+    })
+    .catch(error => {
+      console.error('Error initializing crossword:', error);
+    });
   setupCrosswordInput();
 });
+
+/*document.getElementById('inputForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = document.getElementById('textData').value;
+
+  const response = await fetch('http://localhost:3000/api/generate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ data })
+  });
+
+  const result = await response.json();
+  document.getElementById('result').innerText = result.text;*/

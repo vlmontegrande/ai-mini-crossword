@@ -1,14 +1,18 @@
 {
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "@google/generative-ai": "^0.14.1",
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "fs": "^0.0.1-security"
   },
   "name": "ai-mini-crossword",
   "version": "1.0.0",
   "description": "A crossword with AI generated clues",
-  "main": "index.js",
-  "devDependencies": {},
+  "main": "server.js",
   "scripts": {
-    "start": "open http://localhost:8080 && node server.js"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -19,5 +23,6 @@
   "bugs": {
     "url": "https://github.com/vlmontegrande/ai-mini-crossword/issues"
   },
-  "homepage": "https://github.com/vlmontegrande/ai-mini-crossword#readme"
+  "homepage": "https://github.com/vlmontegrande/ai-mini-crossword#readme",
+  "keywords": []
 }
