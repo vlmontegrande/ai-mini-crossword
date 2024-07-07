@@ -318,6 +318,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   fetchJSONFile('data/easy_list.json')
     .then(crossword => {
       if (crossword) { // Ensure crossword is not undefined
+        console.log(crossword);
         return fetchClues(crossword);
       } else {
         throw new Error('Crossword generation failed.');
@@ -325,7 +326,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
     })
     .then(clues => {
       console.log(clues);
-      // Additional logic to display clues can be added here
     })
     .catch(error => {
       console.error('Error initializing crossword:', error);
