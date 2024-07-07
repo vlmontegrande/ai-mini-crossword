@@ -239,10 +239,15 @@ async function fetchClues(crossword) {
         },
         body: JSON.stringify({ word })
       });
+
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        throw new Error(errorMessage.error);
+      }
   
       clues.push(await response.json());
     } catch (error) {
-      document.getElementById('result').innerText = 'Error: ' + error.message;
+      handleError(error);
     }
   }
   return clues;
@@ -392,6 +397,12 @@ function setupCrosswordInput() {
   });
 }
 
+function handleError(error) {
+  console.error('Error:', error);
+  document.getElementById('errorMessage').innerHTML = 'Error: ' + error.message;
+}
+
+
 document.addEventListener('DOMContentLoaded', (event) => {
   fetchJSONFile('data/easy_list.json')
     .then(crossword => {
@@ -399,6 +410,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         console.log(crossword);
         return fetchClues(crossword);
       } else {
+        handleError(new Error('Crossword generation failed.'));
         throw new Error('Crossword generation failed.');
       }
     })

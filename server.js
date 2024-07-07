@@ -29,7 +29,8 @@ app.post('/api/generate', async (req, res) => {
     const text = await response.text();
     res.json({ text });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred' });
+    console.log(error);
+    res.status(500).json({ error: `We are unable to generate a crossword clue at this time. Please try again later. ${error.statusText && "Server error status: " + error.statusText}${error.errorDetails && error.errorDetails.length > 0 ? "\n Server error details: " + error.errorDetails.map(detail => detail.reason).join("\n") : ""}` });
   }
 });
 
