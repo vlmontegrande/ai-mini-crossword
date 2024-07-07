@@ -248,34 +248,103 @@ async function fetchClues(crossword) {
   return clues;
 }
 
+function highlightWordHorizontally(cell) {
+  const row = cell.parentElement;
+  row.querySelectorAll('.crossword-cell').forEach(cell => {
+    cell.classList.add('highlighted');
+    cell.style.backgroundColor = 'rgba(19, 255, 0, 0.25)';
+  });
+  cell.style.backgroundColor = 'rgba(0, 181, 255, 0.25)';
+}
+
+function highlightWordVertically(cells, index, gridSize) {
+  cells.forEach((cell, i) => {
+    if (i % gridSize == index % gridSize) {
+      cell.classList.add('highlighted');
+      cell.style.backgroundColor = 'rgba(19, 255, 0, 0.25)';
+    }
+  });
+  cells[index].style.backgroundColor = 'rgba(0, 181, 255, 0.25)';
+}
+
+function removeHighlights(cells) {
+  cells.forEach(cell => {
+    cell.classList.remove('highlighted');
+    cell.style.backgroundColor = '';
+  });
+}
+
+function highlightWord(cells, cell, index, gridSize, horizontal) {
+  removeHighlights(cells);
+  if (horizontal) {
+    highlightWordHorizontally(cell);
+  } else {
+    highlightWordVertically(cells, index, gridSize);
+  }
+}
+
 function setupCrosswordInput() {
   const cells = document.querySelectorAll('.crossword-cell');
-  const gridSize = 3; // Assuming a 5x5 grid
+  const gridSize = 3; 
+  let horizontal = true;
+  let currentCell = cells[0];
 
   cells.forEach((cell, index) => {
     cell.addEventListener('keydown', (e) => {
       switch (e.key) {
         case 'ArrowLeft':
           if (index % gridSize > 0) {
-            cells[index - 1].focus();
+            currentCell = cells[index - 1];
+            currentCell.focus();
+            highlightWord(cells, currentCell, index - 1, gridSize, horizontal);
+          } else {
+            if (horizontal)
+              horizontal = false;
+            else
+              horizontal = true;
+            highlightWord(cells, currentCell, index, gridSize, horizontal)
           }
           e.preventDefault();
           break;
         case 'ArrowRight':
           if (index % gridSize < gridSize - 1) {
-            cells[index + 1].focus();
+            currentCell = cells[index + 1];
+            currentCell.focus();
+            highlightWord(cells, currentCell, index + 1, gridSize, horizontal);
+          } else {
+            if (horizontal)
+              horizontal = false;
+            else
+              horizontal = true;
+            highlightWord(cells, currentCell, index, gridSize, horizontal)
           }
           e.preventDefault();
           break;
         case 'ArrowUp':
           if (index >= gridSize) {
-            cells[index - gridSize].focus();
+            currentCell = cells[index - gridSize];
+            currentCell.focus();
+            highlightWord(cells, currentCell, index - gridSize, gridSize, horizontal);
+          } else {
+            if (horizontal)
+              horizontal = false;
+            else
+              horizontal = true;
+            highlightWord(cells, currentCell, index, gridSize, horizontal)
           }
           e.preventDefault();
           break;
         case 'ArrowDown':
           if (index < cells.length - gridSize) {
-            cells[index + gridSize].focus();
+            currentCell = cells[index + gridSize];
+            currentCell.focus();
+            highlightWord(cells, currentCell, index + gridSize, gridSize, horizontal);
+          } else {
+            if (horizontal)
+              horizontal = false;
+            else
+              horizontal = true;
+            highlightWord(cells, currentCell, index, gridSize, horizontal)
           }
           e.preventDefault();
           break;
@@ -284,8 +353,10 @@ function setupCrosswordInput() {
         case 'Tab':
           if (index == gridSize ** 2 - 1) {
             cells[0].focus();
+            highlightWord(cells, cells[0], 0, gridSize, horizontal)
           } else {
             cells[index + 1].focus();
+            highlightWord(cells, cells[index + 1], index + 1, gridSize, horizontal)
           }
           e.preventDefault();
           break;
@@ -310,6 +381,13 @@ function setupCrosswordInput() {
       e.preventDefault();
       cell.focus();
       cell.selectionStart = cell.selectionEnd = cell.value.length;
+      if (currentCell === cell && horizontal) {
+        horizontal = false;
+      } else if (currentCell === cell){
+        horizontal = true;
+      }
+      currentCell = cell;
+      highlightWord(cells, currentCell, index, gridSize, horizontal);
     });
   });
 }
@@ -332,18 +410,3 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });
   setupCrosswordInput();
 });
-
-/*document.getElementById('inputForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const data = document.getElementById('textData').value;
-
-  const response = await fetch('http://localhost:3000/api/generate', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ data })
-  });
-
-  const result = await response.json();
-  document.getElementById('result').innerText = result.text;*/
