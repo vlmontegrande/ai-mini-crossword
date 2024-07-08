@@ -33,11 +33,13 @@ function findWordsThatMatchOneLetter(data, letter) {
       done = true;
     }
     if((index === 0 || index === keys.length - 1) && !done) {
-      throw new Error('No matches found for letter');
+      handleError(new Error('No matches found for letter'));
+      return [];
     }
     if(count > 100) {
       console.log(currentWord + ' ' + letter + ' ' + index + ' ' + keys.length + ' ' );
-      throw new Error('Infinite loop');
+      handleError(new Error('Infinite loop'));
+      return [];
     }
   }
 
@@ -165,42 +167,11 @@ function fillCrossword(data) {
   return crossword;
 }
 
-/*function fetchJSONFile(path) {
-  fetch(path)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      let crossword = fillCrossword(data);
-      document.getElementById('1A').value = crossword[0].charAt(0);
-      document.getElementById('1B').value = crossword[0].charAt(1);
-      document.getElementById('1C').value = crossword[0].charAt(2);
-
-      document.getElementById('2A').value = crossword[2].charAt(0);
-      document.getElementById('2B').value = crossword[2].charAt(1);
-      document.getElementById('2C').value = crossword[2].charAt(2);
-
-      document.getElementById('3A').value = crossword[5].charAt(0);
-      document.getElementById('3B').value = crossword[5].charAt(1);
-      document.getElementById('3C').value = crossword[5].charAt(2);
-      console.log(crossword);
-      return crossword;
-      
-    })
-    .catch(error => {
-      console.error('There was a problem with the fetch operation:', error);
-    });
-}*/
-
-// NEW
 function fetchJSONFile(path) {
   return fetch(path)
     .then(response => {
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        handleError(new Error('Network response was not ok.'));
       }
       return response.json();
     })
@@ -218,11 +189,11 @@ function fetchJSONFile(path) {
       document.getElementById('3B').value = crossword[5].charAt(1);
       document.getElementById('3C').value = crossword[5].charAt(2);
       
-      return crossword; // Make sure to return the crossword
+      return crossword; 
     })
     .catch(error => {
-      console.error('There was a problem with the fetch operation:', error);
-      return null; // Return null or some value to indicate failure
+      handleError(error);
+      return null; 
     });
 }
 
@@ -242,7 +213,7 @@ async function fetchClues(crossword) {
 
       if (!response.ok) {
         const errorMessage = await response.json();
-        throw new Error(errorMessage.error);
+        handleError(new Error(errorMessage.error));
       }
   
       clues.push(await response.json());
@@ -418,7 +389,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       console.log(clues);
     })
     .catch(error => {
-      console.error('Error initializing crossword:', error);
+      handleError(error); 
     });
   setupCrosswordInput();
 });
