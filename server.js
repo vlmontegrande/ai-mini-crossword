@@ -15,20 +15,24 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.post('/api/generate', async (req, res) => {
   try {
-    const { word } = req.body;
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const { words } = req.body;
+    let model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      generationConfig: { responseMimeType: "application/json" }
+    });
     const prompt = `
-    Your job is to create a crossword clue for the word "${word}". Make sure to follow all of the following:
+    Your job is to create crossword clues for the 6 words "${words}". Make sure to follow all of the following:
     - Use this JSON schema:
     { "type": "object",
-      "properties": {
-        "recipe_name": { "type": "string" },
-      }
+        "properties": {
+          "word": { "type": "string" },
+          "clue": { "type": "string" }
+        }
     }
-    - Only generate the clue, without any other response. This includes any validation that you received this prompt, the length of the word, or any other unnecessary additions.
-    - Make sure the clue is correct and fits a definition of the word. The clue could reference clever meanings of the word, puns, pop culture references involving the word, or other creative usages of the word. Just make sure that the clue is correct and relevant, and that it encapsulates a well-known understanding of the word.
-    - Limit the clue to one sentence.
-    - Make the clue simple enough so that an average middle schooler would be able to get the word.
+    - Only generate the clues, without any other response. This includes any validation that you received this prompt, the length of the words, or any other unnecessary additions.
+    - Make sure the clues are correct and fits a definition of the word. The clues could reference clever meanings of the word, puns, pop culture references involving the word, or other creative usages of the word. Just make sure that the clues are correct and relevant, and that they encapsulates a well-known understanding of the words.
+    - Limit the clues to one sentence.
+    - Make the clues simple enough so that an average middle schooler would be able to get the words.
     `;
 
     /*const prompt = `

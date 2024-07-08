@@ -198,29 +198,26 @@ function fetchJSONFile(path) {
 }
 
 
-async function fetchClues(crossword) {
+async function fetchClues(words) {
   let clues = [];
-  for(let i = 0; i < crossword.length; i++) {
-    let word = crossword[i];
-    try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ word })
-      });
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ words })
+    });
 
-      if (!response.ok) {
-        const errorMessage = await response.json();
-        handleError(new Error(errorMessage.error));
-      }
+    if (!response.ok) {
+      const errorMessage = await response.json();
+      handleError(new Error(errorMessage.error));
+    }
   
-      clues.push(await response.json());
+    clues.push(await response.json());
     } catch (error) {
       handleError(error);
     }
-  }
   return clues;
 }
 
