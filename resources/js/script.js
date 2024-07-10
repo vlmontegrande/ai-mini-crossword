@@ -1,5 +1,5 @@
 // Import the data from the JSON file
-// 'data\\hard_list.json' is the path to the JSON file
+// "data\\hard_list.json" is the path to the JSON file
 
 // *****HELPER FUNTIONS FOR CROSSWORD***** //
 
@@ -33,13 +33,13 @@ function findWordsThatMatchOneLetter(data, letter) {
       done = true;
     }
     if((index === 0 || index === keys.length - 1) && !done) {
-      handleError(new Error('No matches found for letter'));
-      throw new Error('No matches found for letter');
+      handleError(new Error("No matches found for letter"));
+      throw new Error("No matches found for letter");
     }
     if(count > 100) {
-      console.log(currentWord + ' ' + letter + ' ' + index + ' ' + keys.length + ' ' );
-      handleError(new Error('Infinite loop'));
-      throw new Error('Infinite loop');
+      console.log(currentWord + " " + letter + " " + index + " " + keys.length + " " );
+      handleError(new Error("Infinite loop"));
+      throw new Error("Infinite loop");
     }
   }
 
@@ -171,24 +171,24 @@ function fetchJSONFile(path) {
   return fetch(path)
     .then(response => {
       if (!response.ok) {
-        handleError(new Error('Network response was not ok.'));
-        throw new Error('Network response was not ok.');     
+        handleError(new Error("Network response was not ok."));
+        throw new Error("Network response was not ok.");     
       }
       return response.json();
     })
     .then(data => {
       let crossword = fillCrossword(data);
-      /*document.getElementById('1A').value = crossword[0].charAt(0);
-      document.getElementById('1B').value = crossword[0].charAt(1);
-      document.getElementById('1C').value = crossword[0].charAt(2);
+      /*document.getElementById("1A").value = crossword[0].charAt(0);
+      document.getElementById("1B").value = crossword[0].charAt(1);
+      document.getElementById("1C").value = crossword[0].charAt(2);
 
-      document.getElementById('2A').value = crossword[2].charAt(0);
-      document.getElementById('2B').value = crossword[2].charAt(1);
-      document.getElementById('2C').value = crossword[2].charAt(2);
+      document.getElementById("2A").value = crossword[2].charAt(0);
+      document.getElementById("2B").value = crossword[2].charAt(1);
+      document.getElementById("2C").value = crossword[2].charAt(2);
 
-      document.getElementById('3A').value = crossword[5].charAt(0);
-      document.getElementById('3B').value = crossword[5].charAt(1);
-      document.getElementById('3C').value = crossword[5].charAt(2);*/
+      document.getElementById("3A").value = crossword[5].charAt(0);
+      document.getElementById("3B").value = crossword[5].charAt(1);
+      document.getElementById("3C").value = crossword[5].charAt(2);*/
       
       return crossword; 
     })
@@ -202,10 +202,10 @@ function fetchJSONFile(path) {
 async function fetchClues(words) {
   let clues = [];
   try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
+    const response = await fetch("/api/generate", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({ words })
     });
@@ -226,27 +226,27 @@ async function fetchClues(words) {
 
 function highlightWordHorizontally(cell) {
   const row = cell.parentElement;
-  row.querySelectorAll('.crossword-cell').forEach(cell => {
-    cell.classList.add('highlighted');
-    cell.style.backgroundColor = 'rgba(19, 255, 0, 0.25)';
+  row.querySelectorAll(".crossword-cell").forEach(cell => {
+    cell.classList.add("highlighted");
+    cell.style.backgroundColor = "rgba(19, 255, 0, 0.25)";
   });
-  cell.style.backgroundColor = 'rgba(0, 181, 255, 0.25)';
+  cell.style.backgroundColor = "rgba(0, 181, 255, 0.25)";
 }
 
 function highlightWordVertically(cells, index, gridSize) {
   cells.forEach((cell, i) => {
     if (i % gridSize == index % gridSize) {
-      cell.classList.add('highlighted');
-      cell.style.backgroundColor = 'rgba(19, 255, 0, 0.25)';
+      cell.classList.add("highlighted");
+      cell.style.backgroundColor = "rgba(19, 255, 0, 0.25)";
     }
   });
-  cells[index].style.backgroundColor = 'rgba(0, 181, 255, 0.25)';
+  cells[index].style.backgroundColor = "rgba(0, 181, 255, 0.25)";
 }
 
 function removeHighlights(cells) {
   cells.forEach(cell => {
-    cell.classList.remove('highlighted');
-    cell.style.backgroundColor = '';
+    cell.classList.remove("highlighted");
+    cell.style.backgroundColor = "";
   });
 }
 
@@ -260,21 +260,33 @@ function highlightWord(cells, cell, index, gridSize, horizontal) {
 }
 
 // ORDER: top row, left column, middle row, middle column, right column, bottom row
-function showClues(clues) {
-  let parsedClues = [];
-  document.getElementById('clueMessage').innerHTML = JSON.parse(clues);
+function showClues(clues, index, horizontal, gridSize) {
+  let clueMessage = "";
+  let word = "";
+  if (horizontal) {
+    for(let i = 0; i < gridSize; i++) {
+      word += document.getElementById(`${index % (gridSize * i)}`).value;
+    }
+  } else {
+    for(let i = 0; i < gridSize; i++) {
+      word += document.getElementById(`${index % (gridSize * i)}`).value;
+    }
+  }
+
+  clueMessage = clues.find(clue => clue.word === word).clue;
+  document.getElementById("clueMessage").innerHTML = JSON.stringify(clueMessage);
 }
 
-function setupCrosswordInput() {
-  const cells = document.querySelectorAll('.crossword-cell');
+function setupCrosswordInput(crossword, clues = JSON.parse(`{clues: [{word: "", clue: ""}, {word: "", clue: ""}, {word: "", clue: ""}, {word: "", clue: ""}, {word: "", clue: ""}, {word: "", clue: ""}]}`)) {
+  const cells = document.querySelectorAll(".crossword-cell");
   const gridSize = 3; 
   let horizontal = true;
   let currentCell = cells[0];
 
   cells.forEach((cell, index) => {
-    cell.addEventListener('keydown', (e) => {
+    cell.addEventListener("keydown", (e) => {
       switch (e.key) {
-        case 'ArrowLeft':
+        case "ArrowLeft":
           if (index % gridSize > 0) {
             currentCell = cells[index - 1];
             currentCell.focus();
@@ -288,7 +300,7 @@ function setupCrosswordInput() {
           }
           e.preventDefault();
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           if (index % gridSize < gridSize - 1) {
             currentCell = cells[index + 1];
             currentCell.focus();
@@ -302,7 +314,7 @@ function setupCrosswordInput() {
           }
           e.preventDefault();
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           if (index >= gridSize) {
             currentCell = cells[index - gridSize];
             currentCell.focus();
@@ -316,7 +328,7 @@ function setupCrosswordInput() {
           }
           e.preventDefault();
           break;
-        case 'ArrowDown':
+        case "ArrowDown":
           if (index < cells.length - gridSize) {
             currentCell = cells[index + gridSize];
             currentCell.focus();
@@ -330,9 +342,9 @@ function setupCrosswordInput() {
           }
           e.preventDefault();
           break;
-        case 'Backspace':
+        case "Backspace":
           break;
-        case 'Tab':
+        case "Tab":
           if (horizontal) {
             if (index == gridSize ** 2 - 1) {
               cells[0].focus();
@@ -364,12 +376,12 @@ function setupCrosswordInput() {
       }
     });
 
-    cell.addEventListener('input', () => {
+    cell.addEventListener("input", () => {
       // Allow only a single character
       cell.value = cell.value.toUpperCase().substring(0, 1);
     });
 
-    cell.addEventListener('mousedown', (e) => {
+    cell.addEventListener("mousedown", (e) => {
       // Move cursor to the end of the input
       e.preventDefault();
       cell.focus();
@@ -386,27 +398,29 @@ function setupCrosswordInput() {
 }
 
 function handleError(error) {
-  console.error('Error:', error);
-  document.getElementById('errorMessage').innerHTML = 'Error: ' + error.message;
+  console.error("Error:", error);
+  document.getElementById("errorMessage").innerHTML = "Error: " + error.message;
 }
 
 
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener("DOMContentLoaded", (event) => {
   setupCrosswordInput();
-  fetchJSONFile('data/easy_list.json')
+  fetchJSONFile("data/easy_list.json")
     .then(crossword => {
       if (crossword) {
         console.log(crossword);
         let data = fetchClues(crossword);
-        return data;
+        return [data, crossword];
       } else {
-        handleError(new Error('Crossword generation failed.'));
-        throw new Error('Crossword generation failed.');
+        handleError(new Error("Crossword generation failed."));
+        throw new Error("Crossword generation failed.");
       }
     })
-    .then(data => {
+    .then(arr => {
+      data = arr[0];
+      crossword = arr[1];
       parsed = JSON.parse(data[0].text);
-      console.log(parsed);
+      document.getElementById("clueMessage").innerHTML = "Clues loaded!";
     })
     .catch(error => {
       handleError(error); 
