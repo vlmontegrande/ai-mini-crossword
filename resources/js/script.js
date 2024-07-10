@@ -34,12 +34,12 @@ function findWordsThatMatchOneLetter(data, letter) {
     }
     if((index === 0 || index === keys.length - 1) && !done) {
       handleError(new Error('No matches found for letter'));
-      return [];
+      throw new Error('No matches found for letter');
     }
     if(count > 100) {
       console.log(currentWord + ' ' + letter + ' ' + index + ' ' + keys.length + ' ' );
       handleError(new Error('Infinite loop'));
-      return [];
+      throw new Error('Infinite loop');
     }
   }
 
@@ -172,12 +172,13 @@ function fetchJSONFile(path) {
     .then(response => {
       if (!response.ok) {
         handleError(new Error('Network response was not ok.'));
+        throw new Error('Network response was not ok.');     
       }
       return response.json();
     })
     .then(data => {
       let crossword = fillCrossword(data);
-      document.getElementById('1A').value = crossword[0].charAt(0);
+      /*document.getElementById('1A').value = crossword[0].charAt(0);
       document.getElementById('1B').value = crossword[0].charAt(1);
       document.getElementById('1C').value = crossword[0].charAt(2);
 
@@ -187,13 +188,13 @@ function fetchJSONFile(path) {
 
       document.getElementById('3A').value = crossword[5].charAt(0);
       document.getElementById('3B').value = crossword[5].charAt(1);
-      document.getElementById('3C').value = crossword[5].charAt(2);
+      document.getElementById('3C').value = crossword[5].charAt(2);*/
       
       return crossword; 
     })
     .catch(error => {
       handleError(error);
-      return null; 
+      throw error;
     });
 }
 
@@ -212,11 +213,13 @@ async function fetchClues(words) {
     if (!response.ok) {
       const errorMessage = await response.json();
       handleError(new Error(errorMessage.error));
+      throw new Error(errorMessage.error);
     }
   
     clues.push(await response.json());
     } catch (error) {
       handleError(error);
+      throw error;
     }
   return clues;
 }
@@ -254,6 +257,12 @@ function highlightWord(cells, cell, index, gridSize, horizontal) {
   } else {
     highlightWordVertically(cells, index, gridSize);
   }
+}
+
+// ORDER: top row, left column, middle row, middle column, right column, bottom row
+function showClues(clues) {
+  let parsedClues = [];
+  document.getElementById('clueMessage').innerHTML = JSON.parse(clues);
 }
 
 function setupCrosswordInput() {
@@ -324,14 +333,25 @@ function setupCrosswordInput() {
         case 'Backspace':
           break;
         case 'Tab':
-          if (index == gridSize ** 2 - 1) {
-            cells[0].focus();
-            highlightWord(cells, cells[0], 0, gridSize, horizontal)
+          if (horizontal) {
+            if (index == gridSize ** 2 - 1) {
+              cells[0].focus();
+              highlightWord(cells, cells[0], 0, gridSize, horizontal)
+            } else {
+              cells[index + 1].focus();
+              highlightWord(cells, cells[index + 1], index + 1, gridSize, horizontal)
+            }
           } else {
-            cells[index + 1].focus();
-            highlightWord(cells, cells[index + 1], index + 1, gridSize, horizontal)
+            if (index > gridSize ** 2 - gridSize - 1) {
+              cells[(index % gridSize + 1) % gridSize].focus();
+              highlightWord(cells, cells[(index % gridSize + 1) % gridSize], (index % gridSize + 1) % gridSize, gridSize, horizontal);
+            } else {
+              cells[index + gridSize].focus();
+              highlightWord(cells, cells[index + gridSize], index + gridSize, gridSize, horizontal);
+            }
           }
           e.preventDefault();
+
           break;
         default:
           // Prevent entering more than one character
@@ -372,21 +392,23 @@ function handleError(error) {
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
+  setupCrosswordInput();
   fetchJSONFile('data/easy_list.json')
     .then(crossword => {
-      if (crossword) { // Ensure crossword is not undefined
+      if (crossword) {
         console.log(crossword);
-        return fetchClues(crossword);
+        let data = fetchClues(crossword);
+        return data;
       } else {
         handleError(new Error('Crossword generation failed.'));
         throw new Error('Crossword generation failed.');
       }
     })
-    .then(clues => {
-      console.log(clues);
+    .then(data => {
+      console.log(data.clues[0].word);
     })
     .catch(error => {
       handleError(error); 
+      throw error;
     });
-  setupCrosswordInput();
 });
