@@ -405,7 +405,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
       }
     })
     .then(data => {
-      console.log(data.clues[0].word);
+      parsed = JSON.parse(data[0].text);
+      console.log(parsed);
     })
     .catch(error => {
       handleError(error); 

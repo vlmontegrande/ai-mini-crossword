@@ -18,28 +18,26 @@ app.post('/api/generate', async (req, res) => {
     const { words } = req.body;
     let model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
-      generationConfig: { responseMimeType: "application/json" }
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: FunctionDeclarationSchemaType.ARRAY,
+          items: {
+            type: FunctionDeclarationSchemaType.OBJECT,
+            properties: {
+              word: {
+                type: FunctionDeclarationSchemaType.STRING,
+              },
+              clue: {
+                type: FunctionDeclarationSchemaType.STRING,
+              }
+            },
+          },
+        },
+      }
     });
     const prompt = `
     Your job is to create crossword clues for the 6 words "${words}". Make sure to follow all of the following:
-    - Use this JSON schema:
-    { 
-      "type": "object",
-      "properties": {
-        "clues": { 
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "word": { "type": "string" },
-              "clue": { "type": "string" }
-            },
-            "required": ["word", "clue"]
-          }
-        }
-      },
-      "required": ["clues"]
-    }
     - Only generate the clues, without any other response. This includes any validation that you received this prompt, the length of the words, or any other unnecessary additions.
     - Make sure the clues are correct and fits a definition of the word. The clues could reference clever meanings of the word, puns, pop culture references involving the word, or other creative usages of the word. Just make sure that the clues are correct and relevant, and that they encapsulates a well-known understanding of the words.
     - Limit the clues to one sentence.
