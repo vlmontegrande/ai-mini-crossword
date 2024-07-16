@@ -1,7 +1,4 @@
-// Import the data from the JSON file
-// "data\\hard_list.json" is the path to the JSON file
-
-// *****HELPER FUNTIONS FOR CROSSWORD***** //
+// *****HELPER FUNCTIONS FOR CROSSWORD***** //
 
 function findRandomWord(data) {
   const keys = Object.keys(data);
@@ -85,18 +82,6 @@ function findWordsThatMatchTwoLetters(data, letters) {
   return matches;
 }
 
-/*function findWordsThatMatchThreeLetters(data, letters) {
-  let matchesFirstLetter = findWordsThatMatchOneLetter(data, letters.charAt(0));
-  let matches = [];
-  for(let i = 0; i < matchesFirstLetter.length; i++) {
-    if(matchesFirstLetter[i] === letters) {
-      matches.push(matchesFirstLetter[i]);
-      return matches;
-    }
-  }
-  return matches;
-}*/
-
 function findWord(data, letters) {
   if(data[letters] !== undefined) {
     return [letters];
@@ -105,18 +90,12 @@ function findWord(data, letters) {
 }
 
 function checkWord(data, word) {
-  // Return true if word is in the data, return false otherwise
   return data[word] !== undefined;
 }
 
-function fillCrossword(data) {
-  // Add top row word
-  // Add left column word with same first letter
-  // Add middle row word with same first letter
-  // Check if any words exist for middle column
-  // Check if any words that complete right column and bottom row
-  // If not, repeat
+// *****CROSSWORD GENERATION***** // 
 
+function fillCrossword(data) {
   // ORDER: top row, left column, middle row, middle column, right column, bottom row
   let done = false;
   let counter = 0;
@@ -125,7 +104,6 @@ function fillCrossword(data) {
   while(!done) {
     let newData = {...data};
     counter++;
-    console.log(counter);
 
     crossword = [];
     let topRowWord = findRandomWord(newData);
@@ -164,8 +142,11 @@ function fillCrossword(data) {
     }
   }
 
+  console.log(counter);
   return crossword;
 }
+
+// *****FUNCTIONS FOR FETCHING DATA***** //
 
 function fetchJSONFile(path) {
   return fetch(path)
@@ -177,19 +158,7 @@ function fetchJSONFile(path) {
       return response.json();
     })
     .then(data => {
-      let crossword = fillCrossword(data);
-      /*document.getElementById("1A").value = crossword[0].charAt(0);
-      document.getElementById("1B").value = crossword[0].charAt(1);
-      document.getElementById("1C").value = crossword[0].charAt(2);
-
-      document.getElementById("2A").value = crossword[2].charAt(0);
-      document.getElementById("2B").value = crossword[2].charAt(1);
-      document.getElementById("2C").value = crossword[2].charAt(2);
-
-      document.getElementById("3A").value = crossword[5].charAt(0);
-      document.getElementById("3B").value = crossword[5].charAt(1);
-      document.getElementById("3C").value = crossword[5].charAt(2);*/
-      
+      let crossword = fillCrossword(data);      
       return crossword; 
     })
     .catch(error => {
@@ -197,7 +166,6 @@ function fetchJSONFile(path) {
       throw error;
     });
 }
-
 
 async function fetchClues(words) {
   let clues = [];
@@ -224,6 +192,8 @@ async function fetchClues(words) {
   return clues;
 }
 
+// *****HELPER FUNCTIONS FOR CROSSWORD INPUT***** //
+
 function highlightWordHorizontally(cell) {
   const row = cell.parentElement;
   row.querySelectorAll(".crossword-cell").forEach(cell => {
@@ -232,16 +202,6 @@ function highlightWordHorizontally(cell) {
   });
   cell.style.backgroundColor = "rgba(0, 181, 255, 0.25)";
 }
-
-/*function highlightWordVertically(cells, index, gridSize) {
-  cells.forEach((cell, i) => {
-    if (i % gridSize == index % gridSize) {
-      cell.classList.add("highlighted");
-      cell.style.backgroundColor = "rgba(19, 255, 0, 0.25)";
-    }
-  });
-  cells[index].style.backgroundColor = "rgba(0, 181, 255, 0.25)";
-}*/
 
 function highlightWordVertically(cell) {
   const column = cell.id[1];
@@ -302,12 +262,13 @@ function showClues(cell, horizontal, clues, crossword) {
         break;
     }
   }
-  console.log(word);
 
   clueIndex = crossword.indexOf(word);
   clueMessage = clues[clueIndex].clue;
   document.getElementById("clueMessage").innerHTML = clueMessage;
 }
+
+// *****SETUP CROSSWORD INPUT***** //
 
 function setupCrosswordInput(crossword = [], clues = JSON.parse(`{"clues": []}`)) {
   const cells = document.querySelectorAll(".crossword-cell");
@@ -451,6 +412,7 @@ function handleError(error) {
   document.getElementById("errorMessage").innerHTML = "Error: " + error.message;
 }
 
+// *****MAIN***** //
 
 document.addEventListener("DOMContentLoaded", (event) => {
   setupCrosswordInput();
@@ -469,8 +431,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
       data = arr[0];
       crossword = arr[1];
       parsed = JSON.parse(data[0].text);
-      console.log(data);
-      console.log(parsed);
       document.getElementById("clueMessage").innerHTML = "Clues loaded!";
       setupCrosswordInput(crossword, parsed);
     })
