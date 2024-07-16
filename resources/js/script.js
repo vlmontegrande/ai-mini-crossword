@@ -233,7 +233,7 @@ function highlightWordHorizontally(cell) {
   cell.style.backgroundColor = "rgba(0, 181, 255, 0.25)";
 }
 
-function highlightWordVertically(cells, index, gridSize) {
+/*function highlightWordVertically(cells, index, gridSize) {
   cells.forEach((cell, i) => {
     if (i % gridSize == index % gridSize) {
       cell.classList.add("highlighted");
@@ -241,43 +241,75 @@ function highlightWordVertically(cells, index, gridSize) {
     }
   });
   cells[index].style.backgroundColor = "rgba(0, 181, 255, 0.25)";
+}*/
+
+function highlightWordVertically(cell) {
+  const column = cell.id[1];
+  const wordCells = document.querySelectorAll(`[id*="${column}"]`);
+  wordCells.forEach((wordCell) => {
+    wordCell.classList.add("highlighted");
+    wordCell.style.backgroundColor = "rgba(19, 255, 0, 0.25)";
+  });
+  cell.style.backgroundColor = "rgba(0, 181, 255, 0.25)";
 }
 
-function removeHighlights(cells) {
-  cells.forEach(cell => {
+function removeHighlights() {
+  const cells = document.querySelectorAll(".crossword-cell");
+  cells.forEach((cell) => {
     cell.classList.remove("highlighted");
     cell.style.backgroundColor = "";
   });
 }
 
-function highlightWord(cells, cell, index, gridSize, horizontal) {
-  removeHighlights(cells);
-  if (horizontal) {
+function highlightWord(cell, horizontal) {
+  removeHighlights();
+  if (horizontal) 
     highlightWordHorizontally(cell);
-  } else {
-    highlightWordVertically(cells, index, gridSize);
-  }
+  else 
+    highlightWordVertically(cell);
 }
 
 // ORDER: top row, left column, middle row, middle column, right column, bottom row
-function showClues(clues, index, horizontal, gridSize) {
+function showClues(cell, horizontal, clues, crossword) {
+  if (crossword.length === 0) {
+    return;
+  }
   let clueMessage = "";
   let word = "";
+  let id = cell.id;
   if (horizontal) {
-    for(let i = 0; i < gridSize; i++) {
-      word += document.getElementById(`${index % (gridSize * i)}`).value;
+    switch (id[0]) {
+      case "1":
+        word = crossword[0];
+        break;
+      case "2":
+        word = crossword[2];
+        break;
+      case "3":
+        word = crossword[5];
+        break;
     }
   } else {
-    for(let i = 0; i < gridSize; i++) {
-      word += document.getElementById(`${index % (gridSize * i)}`).value;
+    switch (id[1]) {
+      case "A":
+        word = crossword[1];
+        break;
+      case "B":
+        word = crossword[3];
+        break;
+      case "C":
+        word = crossword[4];
+        break;
     }
   }
+  console.log(word);
 
-  clueMessage = clues.find(clue => clue.word === word).clue;
-  document.getElementById("clueMessage").innerHTML = JSON.stringify(clueMessage);
+  clueIndex = crossword.indexOf(word);
+  clueMessage = clues[clueIndex].clue;
+  document.getElementById("clueMessage").innerHTML = clueMessage;
 }
 
-function setupCrosswordInput(crossword, clues = JSON.parse(`{clues: [{word: "", clue: ""}, {word: "", clue: ""}, {word: "", clue: ""}, {word: "", clue: ""}, {word: "", clue: ""}, {word: "", clue: ""}]}`)) {
+function setupCrosswordInput(crossword = [], clues = JSON.parse(`{"clues": []}`)) {
   const cells = document.querySelectorAll(".crossword-cell");
   const gridSize = 3; 
   let horizontal = true;
@@ -290,13 +322,15 @@ function setupCrosswordInput(crossword, clues = JSON.parse(`{clues: [{word: "", 
           if (index % gridSize > 0) {
             currentCell = cells[index - 1];
             currentCell.focus();
-            highlightWord(cells, currentCell, index - 1, gridSize, horizontal);
+            highlightWord(currentCell, horizontal);
+            showClues(currentCell, horizontal, clues, crossword);
           } else {
             if (horizontal)
               horizontal = false;
             else
               horizontal = true;
-            highlightWord(cells, currentCell, index, gridSize, horizontal)
+            highlightWord(currentCell, horizontal);
+            showClues(currentCell, horizontal, clues, crossword);
           }
           e.preventDefault();
           break;
@@ -304,13 +338,15 @@ function setupCrosswordInput(crossword, clues = JSON.parse(`{clues: [{word: "", 
           if (index % gridSize < gridSize - 1) {
             currentCell = cells[index + 1];
             currentCell.focus();
-            highlightWord(cells, currentCell, index + 1, gridSize, horizontal);
+            highlightWord(currentCell, horizontal);
+            showClues(currentCell, horizontal, clues, crossword);
           } else {
             if (horizontal)
               horizontal = false;
             else
               horizontal = true;
-            highlightWord(cells, currentCell, index, gridSize, horizontal)
+            highlightWord(currentCell, horizontal);
+            showClues(currentCell, horizontal, clues, crossword);
           }
           e.preventDefault();
           break;
@@ -318,13 +354,15 @@ function setupCrosswordInput(crossword, clues = JSON.parse(`{clues: [{word: "", 
           if (index >= gridSize) {
             currentCell = cells[index - gridSize];
             currentCell.focus();
-            highlightWord(cells, currentCell, index - gridSize, gridSize, horizontal);
+            highlightWord(currentCell, horizontal);
+            showClues(currentCell, horizontal, clues, crossword);
           } else {
             if (horizontal)
               horizontal = false;
             else
               horizontal = true;
-            highlightWord(cells, currentCell, index, gridSize, horizontal)
+            highlightWord(currentCell, horizontal);
+            showClues(currentCell, horizontal, clues, crossword);
           }
           e.preventDefault();
           break;
@@ -332,13 +370,15 @@ function setupCrosswordInput(crossword, clues = JSON.parse(`{clues: [{word: "", 
           if (index < cells.length - gridSize) {
             currentCell = cells[index + gridSize];
             currentCell.focus();
-            highlightWord(cells, currentCell, index + gridSize, gridSize, horizontal);
+            highlightWord(currentCell, horizontal);
+            showClues(currentCell, horizontal, clues, crossword);
           } else {
             if (horizontal)
               horizontal = false;
             else
               horizontal = true;
-            highlightWord(cells, currentCell, index, gridSize, horizontal)
+            highlightWord(currentCell, horizontal);
+            showClues(currentCell, horizontal, clues, crossword);
           }
           e.preventDefault();
           break;
@@ -347,19 +387,27 @@ function setupCrosswordInput(crossword, clues = JSON.parse(`{clues: [{word: "", 
         case "Tab":
           if (horizontal) {
             if (index == gridSize ** 2 - 1) {
-              cells[0].focus();
-              highlightWord(cells, cells[0], 0, gridSize, horizontal)
+              currentCell = cells[0];
+              currentCell.focus();
+              highlightWord(currentCell, horizontal);
+              showClues(currentCell, horizontal, clues, crossword);
             } else {
-              cells[index + 1].focus();
-              highlightWord(cells, cells[index + 1], index + 1, gridSize, horizontal)
+              currentCell = cells[index + 1];
+              currentCell.focus();
+              highlightWord(currentCell, horizontal);
+              showClues(currentCell, horizontal, clues, crossword);
             }
           } else {
             if (index > gridSize ** 2 - gridSize - 1) {
-              cells[(index % gridSize + 1) % gridSize].focus();
-              highlightWord(cells, cells[(index % gridSize + 1) % gridSize], (index % gridSize + 1) % gridSize, gridSize, horizontal);
+              currentCell = cells[(index % gridSize + 1) % gridSize];
+              currentCell.focus();
+              highlightWord(currentCell, horizontal);
+              showClues(currentCell, horizontal, clues, crossword);
             } else {
-              cells[index + gridSize].focus();
-              highlightWord(cells, cells[index + gridSize], index + gridSize, gridSize, horizontal);
+              currentCell = cells[index + gridSize];
+              currentCell.focus();
+              highlightWord(currentCell, horizontal);
+              showClues(currentCell, horizontal, clues, crossword);
             }
           }
           e.preventDefault();
@@ -392,7 +440,8 @@ function setupCrosswordInput(crossword, clues = JSON.parse(`{clues: [{word: "", 
         horizontal = true;
       }
       currentCell = cell;
-      highlightWord(cells, currentCell, index, gridSize, horizontal);
+      highlightWord(currentCell, horizontal);
+      showClues(currentCell, horizontal, clues, crossword);
     });
   });
 }
@@ -410,7 +459,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       if (crossword) {
         console.log(crossword);
         let data = fetchClues(crossword);
-        return [data, crossword];
+        return Promise.all([data, crossword]);
       } else {
         handleError(new Error("Crossword generation failed."));
         throw new Error("Crossword generation failed.");
@@ -420,7 +469,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
       data = arr[0];
       crossword = arr[1];
       parsed = JSON.parse(data[0].text);
+      console.log(data);
+      console.log(parsed);
       document.getElementById("clueMessage").innerHTML = "Clues loaded!";
+      setupCrosswordInput(crossword, parsed);
     })
     .catch(error => {
       handleError(error); 

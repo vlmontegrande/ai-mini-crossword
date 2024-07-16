@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { FunctionDeclarationSchemaType } = require('@google/generative-ai');
 
 const app = express();
 const port = 3000;
@@ -17,25 +18,26 @@ app.post('/api/generate', async (req, res) => {
   try {
     const { words } = req.body;
     let model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-pro",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
           type: FunctionDeclarationSchemaType.ARRAY,
-          items: {
-            type: FunctionDeclarationSchemaType.OBJECT,
-            properties: {
-              word: {
-                type: FunctionDeclarationSchemaType.STRING,
+            items: {
+              type: FunctionDeclarationSchemaType.OBJECT,
+              properties: {
+                word: {
+                  type: FunctionDeclarationSchemaType.STRING,
+                },
+                clue: {
+                  type: FunctionDeclarationSchemaType.STRING,
+                }
               },
-              clue: {
-                type: FunctionDeclarationSchemaType.STRING,
-              }
             },
-          },
         },
       }
     });
+    
     const prompt = `
     Your job is to create crossword clues for the 6 words "${words}". Make sure to follow all of the following:
     - Only generate the clues, without any other response. This includes any validation that you received this prompt, the length of the words, or any other unnecessary additions.
