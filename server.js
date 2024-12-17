@@ -41,7 +41,7 @@ app.post('/api/generate', async (req, res) => {
     const prompt = `
     Your job is to create crossword clues for the 6 words "${words}". Make sure to follow all of the following:
     - Only generate the clues, without any other response. This includes any validation that you received this prompt, the length of the words, or any other unnecessary additions.
-    - Make sure the clues are correct and fits a definition of the word. The clues could reference clever meanings of the word, puns, pop culture references involving the word, or other creative usages of the word. Just make sure that the clues are correct and relevant, and that they encapsulates a well-known understanding of the words.
+    - Make sure the clues are correct and fits a definition of the word. The clues could reference clever meanings of the word, puns, pop culture references involving the word, slang, acronyms, or other creative usages of the word. Just make sure that the clues are correct and relevant, and that they encapsulates a well-known understanding of the words.
     - Limit the clues to one sentence.
     - Make the clues simple enough so that an average middle schooler would be able to get the words.
     `;
